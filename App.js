@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function App() {
@@ -7,6 +8,7 @@ export default function App() {
   const [newWorkout, setNewWorkout] = useState("");
   const [newTime, setNewTime] = useState("");
   const [newCalories, setNewCalories] = useState("");
+  const [selectedWorkoutType, setSelectedWorkoutType] = useState("Cardio");
 
   const handleDeleteWorkout = (id) => {
     setWorkouts(workouts.filter((workout) => workout.id !== id));
@@ -15,13 +17,16 @@ export default function App() {
   // Prevent user from adding empty entries
   const handleSubmit = () => {
     if (newWorkout.trim() === "" || newTime.trim() === "" || newCalories.trim() === "") return;
-    setWorkouts([...workouts, { 
-      id: Date.now(), 
-      text: newWorkout, 
-      time: newTime, 
-      calories: newCalories, 
-      completed: false 
+
+    setWorkouts([...workouts, {
+      id: Date.now(),
+      text: newWorkout,
+      type: selectedWorkoutType,
+      time: newTime,
+      calories: newCalories,
+      completed: false
     }]);
+
     setNewWorkout("");
     setNewTime("");
     setNewCalories("");
@@ -40,6 +45,7 @@ export default function App() {
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.overlay} />
+
           <View style={styles.inputContainer}>
             <TextInput
               value={newWorkout}
@@ -61,16 +67,28 @@ export default function App() {
               style={styles.input}
               keyboardType="numeric"
             />
+            {/* Picker so user can choose if it was a Cardio, HIIT or Strength Workout */}
+            <Picker
+              selectedValue={selectedWorkoutType}
+              onValueChange={(itemValue) => setSelectedWorkoutType(itemValue)}
+              style={styles.picker}
+            >
+              <Picker.Item label="Cardio" value="Cardio" />
+              <Picker.Item label="HIIT" value="HIIT" />
+              <Picker.Item label="Strength" value="Strength" />
+            </Picker>
+
             <TouchableOpacity onPress={handleSubmit} style={styles.button}>
               <Text style={styles.buttonText}>Add Workout</Text>
             </TouchableOpacity>
           </View>
+
           <View style={styles.listContainer}>
             {workouts.map((workout) => (
               <View style={styles.workoutContainer} key={workout.id}>
                 <TouchableOpacity onPress={() => handleToggleCompleted(workout.id)}>
                   <Text style={[styles.workoutText, workout.completed && styles.completedText]}>
-                    {workout.text} - {workout.time} mins - {workout.calories} cal
+                    {workout.text} ({workout.type}) - {workout.time} mins - {workout.calories} cal {/* Added the picker results to the list  */}
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDeleteWorkout(workout.id)}>
@@ -102,7 +120,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   inputContainer: {
     marginBottom: 20,
@@ -114,6 +132,11 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderRadius: 5,
     marginBottom: 10,
+  },
+  picker: {
+    backgroundColor: 'white',
+    marginBottom: 20,
+    fontSize: 14,
   },
   button: {
     backgroundColor: 'black',
@@ -139,10 +162,11 @@ const styles = StyleSheet.create({
   },
   workoutText: {
     fontSize: 16,
-    color: 'white', 
+    color: 'white',
   },
   completedText: {
     textDecorationLine: 'line-through',
     color: '#999',
   },
 });
+
