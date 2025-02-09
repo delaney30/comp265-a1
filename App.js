@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, ImageBackground, Switch } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
@@ -24,7 +24,7 @@ export default function App() {
       type: selectedWorkoutType,
       time: newTime,
       calories: newCalories,
-      completed: false
+      completed: false 
     }]);
 
     setNewWorkout("");
@@ -86,11 +86,18 @@ export default function App() {
           <View style={styles.listContainer}>
             {workouts.map((workout) => (
               <View style={styles.workoutContainer} key={workout.id}>
-                <TouchableOpacity onPress={() => handleToggleCompleted(workout.id)}>
+                <View style={styles.workoutDetails}>
                   <Text style={[styles.workoutText, workout.completed && styles.completedText]}>
-                    {workout.text} ({workout.type}) - {workout.time} mins - {workout.calories} cal {/* Added the picker results to the list  */}
+                    {workout.text} ({workout.type}) - {workout.time} mins - {workout.calories} cal
                   </Text>
-                </TouchableOpacity>
+                </View>
+                
+                {/* Switch to mark workout as completed or not*/}
+                <Switch
+                  value={workout.completed}
+                  onValueChange={() => handleToggleCompleted(workout.id)}
+                  thumbColor={workout.completed ? 'green' : 'red'} // Green if completed, red if not
+                />
                 <TouchableOpacity onPress={() => handleDeleteWorkout(workout.id)}>
                   <Icon name="delete" size={29} color="white" />
                 </TouchableOpacity>
@@ -159,6 +166,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
+  },
+  workoutDetails: {
+    flex: 1,
   },
   workoutText: {
     fontSize: 16,
